@@ -8,6 +8,7 @@
 */
 
 #include "strings.h"
+#include <ctype.h>
 
 /* Strlcat and Strlcpy */
 #define DEST char
@@ -269,4 +270,167 @@ void Sint64ToZStr(_Pre_writable_size_(64) TChar buf[64], PAL_Sint64 value, _Outp
     *result = p;
 }
 
+int wcsncasecmp(const wchar_t* s1, const wchar_t* s2, size_t n)
+{
+    wchar_t s1Char, s2Char;
+    const wchar_t *end = s1 + n - 1;
+    if(!s1 || !s2)
+        return -1;
+
+    while(s1 <= end)
+    {
+        s1Char = PAL_tolower(*s1);
+        s2Char = PAL_tolower(*s2);
+        if(s1Char != s2Char)
+            return (int)(s1Char - s2Char);
+        s1++;
+        s2++;
+    }
+    return 0;
+}
+
+int wcscasecmp(const wchar_t* s1, const wchar_t* s2)
+{
+    wchar_t s1Char, s2Char;
+    if(!s1 || !s2)
+        return -1;
+
+    while(*s1 && *s2)
+    {
+        s1Char = PAL_tolower(*s1);
+        s2Char = PAL_tolower(*s2);
+        if(s1Char != s2Char)
+            return (int)(s1Char - s2Char);
+        s1++;
+        s2++;
+    }
+
+    return (int)((unsigned int)*s1 - (unsigned int)*s2);    
+}
+
+#include <errno.h>
+
+PAL_INLINE int __WcsToll_GetDigitValue(wchar_t c, int b)
+{
+    int result = -1;
+    if(c >= L'0' && c <= L'9')
+    {
+        result = (int)(c - L'0');
+    }
+    else if(c >= L'A' && c <= L'Z')
+    {
+        result = 10 + (int)(c - L'A');
+    }
+    else if(c >= L'a' && c <= L'z')
+    {
+        result = 10 + (int)(c - L'a');
+    }
+
+    if((result != -1) && (result >= b))
+    {
+        result = -1;
+    }
+
+    return result;
+}
+
+long long wcstoll(const wchar_t* s, wchar_t** e, int b)
+{
+    PAL_Boolean isNegative = PAL_FALSE;
+    double value = 0;
+    int curDigit = 0;
+    
+    if(!s)
+        goto Error_EINVAL;
+
+    /* rejecting invalid base */
+    if((b < 0) || (b == 1) || (b > 36))
+        goto Error_EINVAL;
+
+    /* moving past any spaces */
+    while(*s && iswspace(*s))
+        s++;
+
+    /* Making sure string doesnt end here */
+    if(!(*s))
+        goto Error_EINVAL;
+
+    /* check if this is -ve number */
+    if(*s == L'-')
+    {
+        isNegative = PAL_TRUE;
+        s++;
+    }
+
+    /* check if this is +ve number */
+    if(*s == L'+')
+        s++;
+
+    /* check if this is octal/hex number */
+    if(*s == L'0')
+    {  
+        s++;
+        if((*s == L'x') || (*s == L'X'))
+        {
+            s++;
+
+            if((b == 0) || (b == 16))
+                b = 16;
+            else
+                goto Error_EINVAL;
+        }
+        else
+        {
+            if((b == 0) || (b == 8))
+                b = 8;
+            else
+                goto Error_EINVAL;
+        }
+    }
+
+    /* if base is 0 still; we set it to 10 */
+    if(b == 0)
+        b = 10;
+
+    if(__WcsToll_GetDigitValue(*s, b) < 0)
+        goto Error_EINVAL;
+
+    while(*s)
+    {
+        curDigit = __WcsToll_GetDigitValue(*s, b);
+        if(curDigit < 0)
+        {
+            goto End;
+        }
+
+        value = (value * b) + curDigit;
+        
+        if(value > PAL_SINT64_MAX)
+        {
+            goto Error_ERANGE;
+        }
+
+        if(isNegative && ((-1) * (value)) < PAL_SINT64_MIN)
+        {
+            goto Error_ERANGE;
+        }
+
+        s++;
+    }
+
+    goto End;
+
+Error_EINVAL:    
+    errno = EINVAL;
+    goto End;
+Error_ERANGE:
+    errno = ERANGE;
+    goto End;
+End:
+    if(e)
+    {        
+        *e = (wchar_t *)s;                
+    }
+    return (long long)value;
+}
 

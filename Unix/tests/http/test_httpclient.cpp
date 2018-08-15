@@ -30,13 +30,9 @@
 using namespace std;
 
 #define TEST_BASICAUTH_BASE64 "dGVzdDpwYXNzd29yZA=="
-#if defined(CONFIG_ENABLE_WCHAR)
-#define TEST_USERNAME L"test"
-#define TEST_PASSWORD L"password"
-#else
 #define TEST_USERNAME "test"
 #define TEST_PASSWORD "password"
-#endif
+
 
 /*********************************** http server ***************************/
 

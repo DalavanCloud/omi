@@ -41,21 +41,12 @@ static int XML_snprintf(char* buf, size_t size, const char* fmt, ...)
 
 #include <pal/strings.h>
 
-#if defined(CONFIG_ENABLE_WCHAR)
-# define T(STR) L##STR
-# define XML_strtoul wcstoul
-# define XML_strlen wcslen
-# define XML_strcmp wcscmp
-# define XML_printf wprintf
-# define XML_fprintf fwprintf
-#else
 # define T(STR) STR
 # define XML_strtoul strtoul
 # define XML_strlen strlen
 # define XML_strcmp strcmp
 # define XML_printf printf
 # define XML_fprintf fprintf
-#endif
 
 // Windows uses these identifiers:
 # define ID_MIUTILS_UNKNOWN 0
