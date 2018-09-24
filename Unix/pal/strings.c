@@ -8,7 +8,6 @@
 */
 
 #include "strings.h"
-#include <ctype.h>
 
 /* Strlcat and Strlcpy */
 #define DEST char
@@ -309,6 +308,7 @@ int wcscasecmp(const wchar_t* s1, const wchar_t* s2)
 }
 
 #include <errno.h>
+#include <wctype.h>
 
 PAL_INLINE int __WcsToll_GetDigitValue(wchar_t c, int b)
 {
