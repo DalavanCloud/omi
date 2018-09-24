@@ -39,11 +39,7 @@ char* FixupFormat(
         if (fmt[0] == '%' && fmt[1] == 'T')
         {
             *p++ = '%';
-#if defined(CONFIG_ENABLE_WCHAR)
-            *p++ = 'S';
-#else
             *p++ = 's';
-#endif
             fmt += 2;
         }
         else

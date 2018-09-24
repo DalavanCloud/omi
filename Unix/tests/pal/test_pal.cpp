@@ -31,18 +31,7 @@
 #include <pal/file.h>
 #include <pal/hashmap.h>
 #include <pal/format.h>
-
-#if defined(sun) || defined(hpux) || defined(aix)
-
-// On solaris, aix, and hpux the compilers are old enough not to be able to handle mixed 
-// width string literals in cpp. The IntlStr macros depend on that ability and would require a major 
-// rewrite of the macros to compile in a wide char environment. So we disable those test cases 
-// (3 out of 20 or so) until we get new compilers on these platforms, only in wide char. 
-
-#define CHAR_TESTS_DISABLED 1
-#else
 #include "test_pal_strings.h"
-#endif
 
 
 using namespace std;
@@ -2409,7 +2398,6 @@ NitsEndTest
 //
 //==============================================================================
 
-#if !CHAR_TESTS_DISABLED
 NitsTest(TestIntlstr_SimpleString)
 {
     Intlstr result = Intlstr_Null;
@@ -2526,7 +2514,6 @@ NitsTest(TestIntlstr_Specifier_x)
     Intlstr_Free(result);
 }
 NitsEndTest
-#endif
 
 #if defined(USE_ALLOCATOR)
 NitsTest(TestAlloc)

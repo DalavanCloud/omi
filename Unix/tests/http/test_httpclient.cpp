@@ -1339,8 +1339,6 @@ NitsEndTest
 
 
 
-#if !defined(CONFIG_ENABLE_WCHAR)
-
 /*
  * We should send userids in the form "user@host.com" or "host\user.com"
  * modified rather than parse them into a standard form. The server will almost certainly 
@@ -1583,4 +1581,3 @@ cleanup:
 }
 NitsEndTest
 
-#endif
